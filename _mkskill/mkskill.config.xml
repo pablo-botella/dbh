@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mkskill>
+  <version-spec params="major:byte,minor:[0-99],build:word">
+    <version major="0" minor="0" build="1" lock="major">
+      <ts></ts>
+    </version>
+    <label key="title" volatile="true" default-to-ts="true"></label>
+    <create file="__publish.bat" git-ignore="true" eol="crlf">
+@echo off
+set TAG={$$$ version $$$}
+git rev-parse -q --verify refs/tags/%TAG% &gt;NUL 2&gt;&amp;1 &amp;&amp; goto :exists
+git ls-remote --exit-code --tags origin %TAG% &gt;NUL 2&gt;&amp;1 &amp;&amp; goto :exists
+git tag %TAG%
+git push origin main --tags
+exit /b 0
+:exists
+echo ERROR: tag %TAG% already exists - run -vinc first
+exit /b 1
+</create>
+  </version-spec>
+  <project id="main" name="dbh" project-type="Go-Module">
+    <meta>
+      <module>github.com/pablo-botella/dbh</module>
+      <license>MIT</license>
+      <description>Minimal database handle for Go — Dbh couples a *sql.DB with its dialect tag, and SqlExecutor is the virtual contract satisfied by *sql.DB, *sql.Tx and *Dbh alike, so one signature runs the same queries inside and outside transactions. Use when working with github.com/pablo-botella/dbh or when Go code needs one contract over connections and transactions. Driver subpackages are planned.</description>
+    </meta>
+  </project>
+  <version-history max="10"></version-history>
+</mkskill>
