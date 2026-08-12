@@ -19,6 +19,9 @@ ListUsers(tx)         // the same code inside a transaction
 ```
 
 Pure contracts, no drivers pulled in: everything underneath is stdlib.
+The one concrete type is `NullSqlExecutor`, the do-nothing placeholder
+for wirings without a database — every operation fails with a clear
+error instead of a nil-pointer panic.
 
 ## Capabilities
 

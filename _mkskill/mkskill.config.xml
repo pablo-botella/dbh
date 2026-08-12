@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mkskill>
   <version-spec params="major:byte,minor:[0-99],build:word">
-    <version major="0" minor="0" build="1" lock="major">
-      <ts></ts>
+    <version major="0" minor="0" build="2" lock="major">
+      <ts>2026-08-12T21:08:15Z</ts>
     </version>
-    <label key="title" volatile="true" default-to-ts="true"></label>
+    <label key="title" volatile="true" default-to-ts="true">2026-08-12T21:08:15Z</label>
     <create file="__publish.bat" git-ignore="true" eol="crlf">
 @echo off
 set TAG={$$$ version $$$}
@@ -25,5 +25,6 @@ exit /b 1
       <description>Minimal database handle for Go — Dbh couples a *sql.DB with its dialect tag, and SqlExecutor is the virtual contract satisfied by *sql.DB, *sql.Tx and *Dbh alike, so one signature runs the same queries inside and outside transactions. Use when working with github.com/pablo-botella/dbh or when Go code needs one contract over connections and transactions. Driver subpackages are planned.</description>
     </meta>
   </project>
-  <version-history max="10"></version-history>
+  <version-history max="10">
+    <release version="v0.0.2" ts="2026-08-12T21:08:15Z" title="2026-08-12T21:08:15Z" method="vinc-build"></release></version-history>
 </mkskill>

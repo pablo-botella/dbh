@@ -14,7 +14,7 @@ against the contracts.
 Layout — one file per piece:
 
 ```
-sql_executor.go   SqlExecutor + the compile-time guards
+sql_executor.go   SqlExecutor + the compile-time guards + NullSqlExecutor
 capabilities.go   Closeable + Beginner (the capability probes)
 with_tx.go        WithTx + ErrAbort
 ```

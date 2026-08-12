@@ -24,6 +24,8 @@ type Closeable interface { // any executor that can be closed
 
 func WithTx(sqx SqlExecutor, fn func(tx *sql.Tx) error) error
 var ErrAbort error  // sentinel: roll back without treating it as a failure
+
+type NullSqlExecutor struct{}  // do-nothing SqlExecutor, embeddable
 ```
 
 - `SqlExecutor` is satisfied by `*sql.DB` and `*sql.Tx` alike —
@@ -38,6 +40,11 @@ var ErrAbort error  // sentinel: roll back without treating it as a failure
   errors. Commit on success, rollback on error; return `ErrAbort` from fn
   to roll back on purpose without it counting as a failure upstream
   (detect with `errors.Is(err, dbh.ErrAbort)`).
-- There is no concrete type in the package: nothing to construct,
-  nothing to import beyond the contracts. Byte-for-byte it is stdlib
-  underneath.
+- `NullSqlExecutor` is the one concrete type: the do-nothing
+  `SqlExecutor` (the NullWaaCtx pattern) for wirings without a database —
+  `Exec`/`Query`/`Prepare` fail with a clear error instead of a
+  nil-pointer panic. Embed it to implement only what you need. Caveat:
+  `QueryRow` returns an empty `sql.Row` (stdlib gives no way to build one
+  carrying a custom error), so prefer probing the error paths.
+- Nothing else to construct: everything but the Null is contract, and
+  byte-for-byte it is stdlib underneath.
