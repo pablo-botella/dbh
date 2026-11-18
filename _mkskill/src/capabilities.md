@@ -37,5 +37,15 @@ if err != nil {
 }
 ```
 
+- `HasDbType` — `GetDbType() DbType`. A `*Dbh` and a `*dbh.Tx` know their
+  dialect; a plain `*sql.DB` or `*sql.Tx` does not. `DbTypeOf` wraps the
+  probe:
+
+```go
+if t, ok := dbh.DbTypeOf(sqx); ok && t == dbh.MySQL {
+	// MySQL-only SQL
+}
+```
+
 dbh ships the contracts; the policy — when to close, when to begin —
 belongs to the caller.

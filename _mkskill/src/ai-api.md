@@ -28,7 +28,7 @@ var ErrAbort error  // sentinel: roll back without treating it as a failure
 type NullSqlExecutor struct{}  // do-nothing SqlExecutor, embeddable
 ```
 
-- `SqlExecutor` is satisfied by `*sql.DB` and `*sql.Tx` alike —
+- `SqlExecutor` is satisfied by `*sql.DB`, `*sql.Tx` and `*Dbh` alike —
   compile-time guards (`var _ SqlExecutor = ...`) keep it that way. Write
   query code against it and the caller decides transaction or not.
 - `Beginner` and `Closeable` are capability probes: consumers type-assert
@@ -46,5 +46,49 @@ type NullSqlExecutor struct{}  // do-nothing SqlExecutor, embeddable
   nil-pointer panic. Embed it to implement only what you need. Caveat:
   `QueryRow` returns an empty `sql.Row` (stdlib gives no way to build one
   carrying a custom error), so prefer probing the error paths.
-- Nothing else to construct: everything but the Null is contract, and
-  byte-for-byte it is stdlib underneath.
+- At this layer there is nothing else to construct: everything but the
+  Null is contract, and byte-for-byte it is stdlib underneath.
+
+## API — Dbh and the dialect
+
+```go
+type DbType int                       // dbh.SQLite | dbh.MySQL
+func ParseDbType(s string) DbType     // "mysql" → MySQL; anything else → SQLite
+func (t DbType) String() string       // "sqlite" | "mysql"
+
+type Dbh struct {
+    *sql.DB
+    DbType DbType
+}
+func New(conn *sql.DB, dbType DbType) *Dbh
+func (d *Dbh) IsMysql() bool
+func (d *Dbh) GetDbType() DbType
+func (d *Dbh) SqlConcat(a, b string) string        // a || b  |  CONCAT(a, b)
+func (d *Dbh) WithTx(fn func(tx *Tx) error) error  // transaction that keeps the dialect
+
+type HasDbType interface { GetDbType() DbType }    // capability probe
+func DbTypeOf(sqx SqlExecutor) (DbType, bool)
+
+type Tx struct { *sql.Tx /* + the dialect, unexported */ }
+func (t *Tx) GetDbType() DbType
+func (t *Tx) WithTx(fn func(tx *Tx) error) error   // runs fn in the same transaction
+
+func EscapeSqlQuotes(s string) string
+func IsUniqueConstraintError(err error, column string) bool
+```
+
+- `Dbh` embeds `*sql.DB`: it is a `SqlExecutor`, a `Beginner` and a
+  `Closeable`. It never opens a connection — `sql.Open` and the driver
+  import stay in the caller.
+- The dialect is lost across `Begin`: the package-level `WithTx` hands
+  fn a plain `*sql.Tx`. When code inside the transaction needs the
+  dialect, use the method `d.WithTx`, which hands a `*dbh.Tx`.
+- Never pass a `*dbh.Tx` to the package-level `WithTx` — it only
+  recognises `*sql.Tx` as an open transaction and would fail with
+  "does not support Begin()". Use `tx.WithTx(fn)`, or `tx.Tx` to reach
+  the standard transaction.
+- Code that receives a bare `SqlExecutor` and needs the dialect probes
+  it with `DbTypeOf`; `ok == false` means a plain `*sql.DB`/`*sql.Tx`.
+- `IsUniqueConstraintError` matches the error text of either dialect
+  ("Duplicate entry" / "UNIQUE constraint failed"); an empty column
+  matches any UNIQUE violation.

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mkskill>
   <version-spec params="major:byte,minor:[0-99],build:word">
-    <version major="0" minor="0" build="2" lock="major">
-      <ts>2026-08-12T21:08:15Z</ts>
+    <version major="0" minor="0" build="3" lock="major">
+      <ts>2026-11-18T18:16:54Z</ts>
     </version>
-    <label key="title" volatile="true" default-to-ts="true">2026-08-12T21:08:15Z</label>
+    <label key="title" volatile="true" default-to-ts="true">2026-11-18T18:16:54Z</label>
     <create file="__publish.bat" git-ignore="true" eol="crlf">
 @echo off
 set TAG={$$$ version $$$}
@@ -26,5 +26,6 @@ exit /b 1
     </meta>
   </project>
   <version-history max="10">
+    <release version="v0.0.3" ts="2026-11-18T18:16:54Z" title="2026-11-18T18:16:54Z" method="vinc-build"></release>
     <release version="v0.0.2" ts="2026-08-12T21:08:15Z" title="2026-08-12T21:08:15Z" method="vinc-build"></release></version-history>
 </mkskill>

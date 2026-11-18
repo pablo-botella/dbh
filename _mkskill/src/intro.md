@@ -6,10 +6,10 @@ mkskill:
 
 # dbh
 
-Minimal database virtual interface for Go: `SqlExecutor` is the contract
-that `*sql.DB` and `*sql.Tx` both satisfy — one signature for code that
+Minimal database handle for Go: `SqlExecutor` is the contract
+that `*sql.DB`, `*sql.Tx` and `*Dbh` all satisfy — one signature for code that
 must not care whether it runs inside a transaction — plus the capability
-probes (`Closeable`, `Beginner`) and `WithTx`, the only function: run a
+probes (`Closeable`, `Beginner`, `HasDbType`) and `WithTx`: run a
 callback inside a transaction, whatever you were handed.
 
 ```go
@@ -24,7 +24,17 @@ tx, _ := db.Begin()
 ListUsers(tx)         // the same code inside a transaction
 ```
 
-Pure contracts, no drivers pulled in: everything underneath is stdlib.
-The one concrete type is `NullSqlExecutor`, the do-nothing placeholder
+On top of the contracts sit two optional layers; code that only wants the
+contracts never touches them, and the linker leaves them out:
+
+- **`Dbh`** — a `*sql.DB` with its dialect tag (SQLite or MySQL), so the
+  code that needs dialect-specific SQL can ask the handle it was given.
+- **`TableMeta`** — a table described as data: its DDL for either
+  dialect, a generic insert/update and the pre-write clean-up of every
+  column all come from that one description. The `dbh-table-meta`
+  generator writes it from your model structs.
+
+No drivers pulled in: everything underneath is stdlib. Opening the
+connection is yours. `NullSqlExecutor` is the do-nothing placeholder
 for wirings without a database — every operation fails with a clear
 error instead of a nil-pointer panic.
