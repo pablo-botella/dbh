@@ -128,6 +128,9 @@ of living in a global or an extra parameter.
 - `IsUniqueConstraintError(err, "column")` recognises a UNIQUE violation
   on that column in the error message of either dialect; an empty column
   matches any.
+- `NullIfZero(n)` and `NullIfEmptyStr(s)` return `nil` for `0` and `""`
+  and the value otherwise: pass the result as a query argument, or as a
+  value of the `GenericSave` map, to store `NULL` in an optional column.
 
 ### The dialect inside a transaction
 

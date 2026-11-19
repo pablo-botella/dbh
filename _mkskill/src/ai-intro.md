@@ -24,7 +24,7 @@ capabilities.go   Closeable + Beginner (the capability probes)
 with_tx.go        WithTx + ErrAbort
 dbh_type.go       DbType, Dbh, New, IsMysql, GetDbType, SqlConcat
 has_db_type.go    HasDbType, DbTypeOf, Tx, Dbh.WithTx, Tx.WithTx
-sql_helpers.go    EscapeSqlQuotes, IsUniqueConstraintError
+sql_helpers.go    EscapeSqlQuotes, IsUniqueConstraintError, NullIfZero, NullIfEmptyStr
 table_meta.go     TableMeta and its parts, HasMeta, Ignore, the enums
 schema_build.go   BuildCreateTable, BuildIndexes, BuildAlterFKs, ColumnTypeDDL
 generic_save.go   BuildMap, GenericSave

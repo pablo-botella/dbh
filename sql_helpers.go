@@ -29,3 +29,22 @@ func IsUniqueConstraintError(err error, column string) bool {
 	}
 	return strings.Contains(msg, column)
 }
+
+// NullIfZero returns nil when v is 0 and v otherwise. Pass the result as
+// a query argument or as a value of the GenericSave map to store NULL
+// instead of 0, typically in an optional foreign key column.
+func NullIfZero(v int64) any {
+	if v == 0 {
+		return nil
+	}
+	return v
+}
+
+// NullIfEmptyStr returns nil when s is the empty string and s otherwise,
+// to store NULL instead of an empty text.
+func NullIfEmptyStr(s string) any {
+	if s == "" {
+		return nil
+	}
+	return s
+}

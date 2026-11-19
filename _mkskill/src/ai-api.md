@@ -75,6 +75,8 @@ func (t *Tx) WithTx(fn func(tx *Tx) error) error   // runs fn in the same transa
 
 func EscapeSqlQuotes(s string) string
 func IsUniqueConstraintError(err error, column string) bool
+func NullIfZero(v int64) any            // nil when 0, to store NULL
+func NullIfEmptyStr(s string) any       // nil when "", to store NULL
 ```
 
 - `Dbh` embeds `*sql.DB`: it is a `SqlExecutor`, a `Beginner` and a
@@ -92,3 +94,7 @@ func IsUniqueConstraintError(err error, column string) bool
 - `IsUniqueConstraintError` matches the error text of either dialect
   ("Duplicate entry" / "UNIQUE constraint failed"); an empty column
   matches any UNIQUE violation.
+- `NullIfZero` / `NullIfEmptyStr` return `nil` for `0` / `""`, the value
+  otherwise. Use them for optional columns (nullable foreign keys)
+  instead of writing the `if` by hand; the result goes straight into a
+  query argument or the `GenericSave` map.
