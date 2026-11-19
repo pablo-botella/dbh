@@ -156,3 +156,17 @@ func TestSqlHelpers(t *testing.T) {
 		t.Error("false positive")
 	}
 }
+
+// needsDialect stands for code that asks for the dialect in its signature.
+func needsDialect(sqx SqlExecutorWithDbType) DbType { return sqx.GetDbType() }
+
+func TestSqlExecutorWithDbType(t *testing.T) {
+	d := New(nil, MySQL)
+	if got := needsDialect(d); got != MySQL {
+		t.Errorf("*Dbh through SqlExecutorWithDbType: %v", got)
+	}
+	tx := &Tx{dbType: MySQL}
+	if got := needsDialect(tx); got != MySQL {
+		t.Errorf("*Tx through SqlExecutorWithDbType: %v", got)
+	}
+}

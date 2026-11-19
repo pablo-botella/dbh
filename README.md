@@ -76,6 +76,18 @@ if t, ok := dbh.DbTypeOf(sqx); ok && t == dbh.MySQL {
 }
 ```
 
+- `SqlExecutorWithDbType` — `SqlExecutor` plus `HasDbType` in one
+  interface, for code that cannot work without the dialect. Ask for it
+  in the signature and the compiler does the checking: a `*Dbh` and a
+  `*dbh.Tx` fit, a plain `*sql.DB` or `*sql.Tx` does not compile.
+
+```go
+func CreateTables(sqx dbh.SqlExecutorWithDbType) error {
+	_, err := sqx.Exec(meta.BuildCreateTable(sqx.GetDbType()))
+	return err
+}
+```
+
 dbh ships the contracts; the policy — when to close, when to begin —
 belongs to the caller.
 

@@ -17,7 +17,7 @@ sql_executor.go   SqlExecutor + the compile-time guards + NullSqlExecutor
 capabilities.go   Closeable + Beginner (the capability probes)
 with_tx.go        WithTx + ErrAbort
 dbh_type.go       DbType, Dbh, New, IsMysql, GetDbType, SqlConcat
-has_db_type.go    HasDbType, DbTypeOf, Tx, Dbh.WithTx, Tx.WithTx
+has_db_type.go    HasDbType, DbTypeOf, SqlExecutorWithDbType, Tx, Dbh.WithTx, Tx.WithTx
 sql_helpers.go    EscapeSqlQuotes, IsUniqueConstraintError, NullIfZero, NullIfEmptyStr
 table_meta.go     TableMeta and its parts, HasMeta, Ignore, the enums
 schema_build.go   BuildCreateTable, BuildIndexes, BuildAlterFKs, ColumnTypeDDL
@@ -96,6 +96,7 @@ func (d *Dbh) WithTx(fn func(tx *Tx) error) error  // transaction that keeps the
 
 type HasDbType interface { GetDbType() DbType }    // capability probe
 func DbTypeOf(sqx SqlExecutor) (DbType, bool)
+type SqlExecutorWithDbType interface { SqlExecutor; HasDbType }  // *Dbh, *Tx
 
 type Tx struct { *sql.Tx /* + the dialect, unexported */ }
 func (t *Tx) GetDbType() DbType
@@ -119,6 +120,9 @@ func NullIfEmptyStr(s string) any       // nil when "", to store NULL
   the standard transaction.
 - Code that receives a bare `SqlExecutor` and needs the dialect probes
   it with `DbTypeOf`; `ok == false` means a plain `*sql.DB`/`*sql.Tx`.
+- Code that cannot work without the dialect asks for
+  `SqlExecutorWithDbType` in its signature instead of probing: `*Dbh`
+  and `*dbh.Tx` satisfy it, plain `*sql.DB`/`*sql.Tx` fail to compile.
 - `IsUniqueConstraintError` matches the error text of either dialect
   ("Duplicate entry" / "UNIQUE constraint failed"); an empty column
   matches any UNIQUE violation.

@@ -16,6 +16,15 @@ func DbTypeOf(sqx SqlExecutor) (DbType, bool) {
 	return SQLite, false
 }
 
+// SqlExecutorWithDbType is an executor that also knows its database type:
+// a *Dbh or a *Tx, never a plain *sql.DB or *sql.Tx. Ask for it in the
+// signature of code that must emit dialect-specific SQL, and the compiler
+// rejects an executor without a dialect instead of a check at run time.
+type SqlExecutorWithDbType interface {
+	SqlExecutor
+	HasDbType
+}
+
 // Tx is a transaction that keeps the database type of the Dbh it came from.
 //
 // A plain *sql.Tx loses the dialect tag: Begin belongs to the standard
@@ -30,6 +39,8 @@ type Tx struct {
 
 var _ SqlExecutor = (*Tx)(nil)
 var _ HasDbType = (*Tx)(nil)
+var _ SqlExecutorWithDbType = (*Tx)(nil)
+var _ SqlExecutorWithDbType = (*Dbh)(nil)
 
 // GetDbType returns the database type of the Dbh the transaction came from.
 func (t *Tx) GetDbType() DbType {
